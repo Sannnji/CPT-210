@@ -9,6 +9,7 @@ from ADCDevice import *
 SERVO 	                = 18
 
 MAX_DEGREE_ROTATION     = 90                                                                # degree
+DEG_MAPPING_FACTOR      = 90
 MIN_SEC_PER_PULSE       = 0.5                                                               # sec
 MAX_SEC_PER_PULSE       = 2.5                                                               # sec
 SECONDS_PER_DEGREE      = (MAX_SEC_PER_PULSE - MIN_SEC_PER_PULSE) / MAX_DEGREE_ROTATION     # sec
@@ -23,7 +24,7 @@ PWM_FREQUENCY           = 50 		                                                 
 MOTOR_OFF = GPIO.LOW
 MOTOR_ON  = GPIO.HIGH
 
-DEBUG_ENABLE = False
+DEBUG_ENABLE = True
 
 #------------------------------------------------------------------------------
 # DESCRIPTION
@@ -70,13 +71,21 @@ def loop(servo):
     while (continue_looping):
         input_angle = get_user_choice()
 
-        seconds_per_pulse = MIN_SEC_PER_PULSE + ((input_angle + MAX_DEGREE_ROTATION) * SECONDS_PER_DEGREE)
+        seconds_per_pulse = MIN_SEC_PER_PULSE + ((input_angle + DEG_MAPPING_FACTOR) * SECONDS_PER_DEGREE)
         
         duty_cycle = (seconds_per_pulse * PWM_FREQUENCY) * 100
 
-        print(f"Angle: {angle}")
-        servo(angle)
-        
+        if (DEBUG_ENABLE):
+            print()
+            print("*** DEBUG ENABLED ****")
+            print(f"  Angle adjustment = {DEG_MAPPING_FACTOR}")
+            print(f"SECONDS_PER_DEGREE = {SECONDS_PER_DEGREE:.3e}")
+            print(f"     Angle entered = {input_angle:.3f}")
+            print(f" Seconds_per_pulse = {seconds_per_pulse:.3e}")
+            print(f"        Duty Cycle = {duty_cycle:.3f}")
+
+        servo.start(duty_cycle)
+        # servo(angle)
         time.sleep(SERVO_DELAY_SEC)
             
 
@@ -116,19 +125,14 @@ def main():
     print("Press CTRL-C to end the program")
     print()
 
-    if (DEBUG_ENABLE):
-        print()
-        print("*** DEBUG ENABLED ****")
-        print(f"  Angle adjustment = {DEG_MAPPING_FACTOR}")
-        print(f"SECONDS_PER_DEGREE = {SECONDS_PER_DEGREE:.3e}")
-        print(f"     Angle entered = {angle_entered:.3f}")
-        print(f" Seconds_per_pulse = {seconds_per_pulse:.3e}")
-        print(f"        Duty Cycle = {duty_cycle:.3f}")
+
     
     try:
         servo = setup_gpio()
-        # servo.start()
+
         loop(servo)
+
+
 
     except KeyboardInterrupt:
         print()
