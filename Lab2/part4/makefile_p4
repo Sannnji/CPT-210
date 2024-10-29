@@ -1,0 +1,6 @@
+all: Lab2_part4
+clean:
+	rm -f Lab2_part4
+
+lab4_part4: Lab2_part4.c
+	gcc -o Lab2_part4 Lab2_part4.c -Wall
