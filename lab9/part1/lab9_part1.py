@@ -1,6 +1,5 @@
 import RPi.GPIO as GPIO
 import time
-from ADCDevice import *
 
 #------------------------------------------------------------------------------
 #                       Constants to be used in program
@@ -8,10 +7,10 @@ from ADCDevice import *
 # GPIO number based on BCM GPIO numbering scheme
 SERVO 	                = 18
 
-MAX_DEGREE_ROTATION     = 90                                                                # degree
+MAX_DEGREE_ROTATION     = 180                                                               # degree
 DEG_MAPPING_FACTOR      = 90
-MIN_SEC_PER_PULSE       = 0.5                                                               # sec
-MAX_SEC_PER_PULSE       = 2.5                                                               # sec
+MIN_SEC_PER_PULSE       = 0.5E-3                                                            # msec
+MAX_SEC_PER_PULSE       = 2.5E-3                                                            # msec
 SECONDS_PER_DEGREE      = (MAX_SEC_PER_PULSE - MIN_SEC_PER_PULSE) / MAX_DEGREE_ROTATION     # sec
 
 # START_DUTY_CYCLE        = 100	    # percentage
@@ -54,10 +53,10 @@ def setup_gpio():
 #------------------------------------------------------------------------------
 # DESCRIPTION
 #	This function represent the main loop that allows the continous control 
-#   over the Micro Servo Motor.
+#   over the Servo Motor.
 #
 # INPUT PARAMETERS:
-#   motor_enable - the instance of the motor PWM
+#   servo - the instance of the Servo PWM
 #
 # OUTPUT PARAMETERS:
 #   none
@@ -85,24 +84,40 @@ def loop(servo):
             print(f"        Duty Cycle = {duty_cycle:.3f}")
 
         servo.start(duty_cycle)
-        # servo(angle)
         time.sleep(SERVO_DELAY_SEC)
             
-
+#------------------------------------------------------------------------------
+# DESCRIPTION
+#	This function handles user input through the console and checks for a valid
+#   input to return
+#
+# INPUT PARAMETERS:
+#   none
+#
+# OUTPUT PARAMETERS:
+#   none
+#
+# RETURN:
+#   none
+#------------------------------------------------------------------------------
 def get_user_choice():
     valid = False
     while (not valid):
         try:
             angle = float(input("Rotation Angle: "))
+            if (angle > 90):
+                raise Exception("Number must not be greater than 90") 
+            
             valid = True
+
         except ValueError:
-            print("Please enter a number.")
+            print("Please enter a number between 0 - 90.")
             print()
     return angle
 
 #------------------------------------------------------------------------------
 # DESCRIPTION
-#	This function cleans up the GPIO ports and ADC
+#	This function cleans up the GPIO ports and stops the Servo Motor PWM
 #
 # INPUT PARAMETERS:
 #   none
@@ -125,14 +140,9 @@ def main():
     print("Press CTRL-C to end the program")
     print()
 
-
-    
     try:
         servo = setup_gpio()
-
         loop(servo)
-
-
 
     except KeyboardInterrupt:
         print()
