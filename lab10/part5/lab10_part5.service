@@ -1,0 +1,14 @@
+[Unit]
+Description=My CPU Core Temp Service
+After=network.target
+
+[Service]
+ExecStart=sudo /usr/bin/python3 -u lab10_part5.py
+WorkingDirectory=/media/yams/usb1/CPT210/lab10/part5/lab10_part5
+StandardOutput=inherit
+StandardError=inherit
+Restart=always
+User=yams
+
+[Install]
+WantedBy=multi-user.target
