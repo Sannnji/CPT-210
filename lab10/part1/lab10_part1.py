@@ -1,3 +1,5 @@
+#! /usr/bin/python3
+
 from bottle import route, run, template
 from datetime import datetime
 
