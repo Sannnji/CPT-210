@@ -86,7 +86,7 @@ def main ():
   #---------------------------------------------------
   # Variables to be used in main
   #---------------------------------------------------
-  tmp_buffer = ""
+  tmp_buffer = "is " + get_cpu_temp() + "\xDF" + "C"
 
   print()
   print("****************  PROGRAM IS RUNNING  ****************")
@@ -106,8 +106,7 @@ def main ():
     
     # Outputs the formatted current CPU temp to the LCD every 2 seconds
     while True:
-        LCD1602.write(LCD1602.LCD_CHAR_POSITION_4, LCD1602.LCD_LINE_NUM_2, 
-                  "is " + get_cpu_temp() + "\xDF" + "C")
+        LCD1602.write(LCD1602.LCD_CHAR_POSITION_4, LCD1602.LCD_LINE_NUM_2, tmp_buffer)
         
         time.sleep(2)
 
