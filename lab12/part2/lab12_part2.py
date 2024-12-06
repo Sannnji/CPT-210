@@ -6,17 +6,20 @@
 #   DESIGNER NAME:  Bruce Link
 #   STUDENT WORK:   James Ji, Samuel Acquaviva
 #
-#       FILE NAME:  lab11_part2.py
+#       FILE NAME:  lab12_part2.py
 #
 # DESCRIPTION
-#   This file is the source code that runs on Raspberry Pi 4 board and
-#   utilizes the LCD1602.py I2C LCD Display Driver. The program displays a
-#   simple two line greeting on the LCD for a predefined amount of time.
-#   Then the LCD is cleared and the current RPi CPU temperature is displayed
-#   and subsequently updated every 2 seconds.
+#   This lab utilizes the HC-SR04 Ultrasonic Sensor Module, a commonly used 
+#   sensor in embedded systems. Ultrasonic sensors, like the HC-SR04, emit 
+#   high-frequency sound waves and measure the time it takes to bounce back
+#   to the sensor. Additionally, this lab also makes use of a buzzer, which
+#   is an audio component widely used in electronic devices such as calculators,
+#   electronic alarm clocks, automobile fault indicators, etc. 
 #
-#   The program will continue in this loop until the user hits the CTRL-C,
-#   at which time the loops exits and the program ends.
+#   The code utilizes the HC-SR04 Ultrasonic Sensor to create a program that
+#   constantly outputs the distance detected by the sensor, until the user 
+#   exits the program. When the distance goes under the specified threshold,
+#   the buzzer will sound repeatedly.
 #
 # *****************************************************************************
 
@@ -41,17 +44,17 @@ TIMEOUT = .05
 
 # -----------------------------------------------------------------------------
 # DESCRIPTION
-#   This function returns the temperature of the SoC as measured by its 
-#   internal temperature sensor on the Raspberry Pi
+#   This function sets up GPIO interface pins for the HC-SR04 sensor, and buzzer,
+#   and returns nothing.
 #
 # INPUT PARAMETERS:
 #   none
 #
 # OUTPUT PARAMETERS:
-#   String
+#   none
 #
 # RETURN:
-#   A String containing the current temperature of the SoC
+#   none
 # -----------------------------------------------------------------------------
 def setup_gpio():
   GPIO.setmode(GPIO.BCM)
@@ -60,7 +63,20 @@ def setup_gpio():
   GPIO.setup(ECHO_PIN, GPIO.IN)
   GPIO.setup(BUZZ_PIN, GPIO.OUT, initial=GPIO.LOW)
 
-
+# -----------------------------------------------------------------------------
+# DESCRIPTION
+#   This function pulses trigger for at least 10 uSeconds. It accepts no 
+#   arguments and returns nothing
+#
+# INPUT PARAMETERS:
+#   none
+#
+# OUTPUT PARAMETERS:
+#   none
+#
+# RETURN:
+#   none
+# -----------------------------------------------------------------------------
 def send_trigger_pulse():
   GPIO.output(TRIG_PIN, GPIO.HIGH)
 
@@ -68,6 +84,21 @@ def send_trigger_pulse():
 
   GPIO.output(TRIG_PIN, GPIO.LOW)
 
+# -----------------------------------------------------------------------------
+# DESCRIPTION
+#   This function detects and measures the Echo signal. The function returns 
+#   the duration of the pulse in uSeconds. If the signal is not detected 
+#   before the timeout period expires, the function returns 0.
+#
+# INPUT PARAMETERS:
+#   none
+#
+# OUTPUT PARAMETERS:
+#   int
+#
+# RETURN:
+#   The duration of the pulse in uSeconds
+# -----------------------------------------------------------------------------
 def measure_return_echo():
   start_time = time.time()
   
@@ -84,6 +115,23 @@ def measure_return_echo():
   
   return current_time - start_time
 
+# -----------------------------------------------------------------------------
+# DESCRIPTION
+#   This function contains the main loop for interfacing with the hardware. 
+#   Once the design enters the loop, the design loop continuously triggers 
+#   the sensor constantly until CTRL-C is detected. During each loop, the
+#   program checks to see if the distance is under the specified threshold.
+#   If it is, the activate_warning() function is called to sound the buzzer.
+#
+# INPUT PARAMETERS:
+#   none
+#
+# OUTPUT PARAMETERS:
+#   none
+#
+# RETURN:
+#   none
+# -----------------------------------------------------------------------------
 def loop():
   while True:
       send_trigger_pulse()
@@ -97,6 +145,20 @@ def loop():
 
         print("Distance: ", distance, "cm")
 
+# -----------------------------------------------------------------------------
+# DESCRIPTION
+#   This function pulses an output pin that can be connected to an audio alarm.
+#
+# INPUT PARAMETERS:
+#   float: BUZZ_LENGTH - A constant which determines the length of time that the
+#   buzzer is enabled for.
+#
+# OUTPUT PARAMETERS:
+#   none
+#
+# RETURN:
+#   none
+# -----------------------------------------------------------------------------
 def activate_warning(BUZZ_LENGTH): 
   for x in range(3):
     GPIO.output(BUZZ_PIN, GPIO.HIGH)
